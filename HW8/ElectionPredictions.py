@@ -2,8 +2,10 @@ import sys
 import argparse
 sys.path.append("..")
 
-from HW5.politics import foo
+from HW5.politics import plotData
 from HW5.politics import getData
+
+dbloc = 'db/politics.db'
 
 parser = argparse.ArgumentParser(description='Show election prediction data')
 
@@ -26,6 +28,7 @@ toPlot = results.plot
 race = results.race
 
 if toPlot:
-	getData(candidate, date, race, 'db/politics.db')
+	getData(candidate, date, race, dbloc)
+	plotData(candidate, date, race, dbloc)
 else:
-	getData(candidate, date, race, 'db/politics.db')
+	getData(candidate, date, race, dbloc)
