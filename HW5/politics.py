@@ -25,6 +25,10 @@ def getData(name, date, race, dbloc):
 	
 	connection.close()
 	
+def format_date(x, pos=None):
+    thisind = np.clip(int(x+0.5), 0, N-1)
+    return r.date[thisind].strftime('%Y-%m-%d')
+	
 def plotData(name, date, race, dbloc):
 	connection = sqlite3.connect(dbloc)
 	cursor = connection.cursor()
@@ -33,7 +37,7 @@ def plotData(name, date, race, dbloc):
 	nDate = time.strftime('%b %d, %Y',a).replace(' 0', ' ')
 	
 	query = "SELECT * FROM predictions WHERE candidate LIKE ? AND race = ?"
-	cursor.execute(query, ["%"+name+"%", race, nDate])
+	cursor.execute(query, ["%"+name+"%", race])
 	predictionResults = cursor.fetchall()
 	
 	dates = []
@@ -46,4 +50,4 @@ def plotData(name, date, race, dbloc):
 	dates = np.array(dates)
 	prices = np.array(prices)
 	
-	plot.plot(dates, prices)
+	plt.plot(dates, prices)
