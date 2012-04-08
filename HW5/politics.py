@@ -1,7 +1,9 @@
 import sqlite3
 import time
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import numpy as np
+import datetime as dt
 
 def getData(name, date, race, dbloc):
 
@@ -44,10 +46,17 @@ def plotData(name, date, race, dbloc):
 	prices = []
 	
 	for point in predictionResults:
-		dates.append(point[0])
+		t = time.strptime(point[0], '%b %d, %Y')
+		d = dt.datetime(t.tm_year, t.tm_mon, t.tm_mday)
+		dates.append(d)
 		prices.append(point[1])
 		
 	dates = np.array(dates)
 	prices = np.array(prices)
 	
-	plt.plot(dates, prices)
+	
+	fig = plt.figure()
+	ax = fig.add_subplot(111)
+	ax.plot(dates, prices)
+	fig.autofmt_xdate()
+	plt.show()
