@@ -1,8 +1,7 @@
 import sqlite3
 import time
-
-def foo(var):
-	print 'hello'
+import matplotlib.pyplot as plt
+import numpy as np
 
 def getData(name, date, race, dbloc):
 
@@ -25,3 +24,26 @@ def getData(name, date, race, dbloc):
 		
 	
 	connection.close()
+	
+def plotData(name, date, race, dbloc):
+	connection = sqlite3.connect(dbloc)
+	cursor = connection.cursor()
+	
+	a=time.strptime(date, '%Y-%m-%d')
+	nDate = time.strftime('%b %d, %Y',a).replace(' 0', ' ')
+	
+	query = "SELECT * FROM predictions WHERE candidate LIKE ? AND race = ?"
+	cursor.execute(query, ["%"+name+"%", race, nDate])
+	predictionResults = cursor.fetchall()
+	
+	dates = []
+	prices = []
+	
+	for point in predictionResults:
+		dates.append(point[0])
+		prices.append(point[1])
+		
+	dates = np.array(dates)
+	prices = np.array(prices)
+	
+	plot.plot(dates, prices)
