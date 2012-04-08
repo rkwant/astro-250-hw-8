@@ -36,20 +36,23 @@ def plotData(name, date, race, dbloc):
 	cursor = connection.cursor()
 	
 	a=time.strptime(date, '%Y-%m-%d')
-	nDate = time.strftime('%b %d, %Y',a).replace(' 0', ' ')
-	
+	searchDate = dt.datetime(a.tm_year, a.tm_mon, a.tm_mday)
+		
 	query = "SELECT * FROM predictions WHERE candidate LIKE ? AND race = ?"
 	cursor.execute(query, ["%"+name+"%", race])
 	predictionResults = cursor.fetchall()
 	
 	dates = []
 	prices = []
+	targetPoint = (0,0)
 	
 	for point in predictionResults:
 		t = time.strptime(point[0], '%b %d, %Y')
 		d = dt.datetime(t.tm_year, t.tm_mon, t.tm_mday)
 		dates.append(d)
 		prices.append(point[1])
+		
+		if d==searchDate: targetPoint = (d, point[1])
 		
 	dates = np.array(dates)
 	prices = np.array(prices)
@@ -59,4 +62,19 @@ def plotData(name, date, race, dbloc):
 	ax = fig.add_subplot(111)
 	ax.plot(dates, prices)
 	fig.autofmt_xdate()
+	
+	if targetPoint != (0,0):
+		ax.plot(targetPoint[0], targetPoint[1], 'ro')
+		ax.annotate(date,
+            xy=(targetPoint[0], targetPoint[1]), xycoords='data',
+            xytext=(-60, -50), textcoords='offset points',
+            arrowprops=dict(arrowstyle="simple",
+			patchA=None,
+			patchB=None,
+			facecolor='white',
+			connectionstyle="angle3"),
+            )
+	ax.set_title('Prediction data for '+point[3])
+	ax.set_xlabel('Date')
+	ax.set_ylabel('Closing Price')
 	plt.show()
