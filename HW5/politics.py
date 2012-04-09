@@ -6,18 +6,28 @@ import numpy as np
 import datetime as dt
 
 def getData(name, date, race, dbloc):
-
-	#connect to the database, change this to re-create the database.
+	'''
+	method to find the prediction data for a particular date and print the result
+	name: name of the candidate
+	date: date of interest
+	race: political race
+	dbloc: location of the database
+	'''
+	
+	#connect to the database
 	connection = sqlite3.connect(dbloc)
 	cursor = connection.cursor()
 	
+	#convert the date to the proper format
 	a=time.strptime(date, '%Y-%m-%d')
 	nDate = time.strftime('%b %d, %Y',a).replace(' 0', ' ')
 	
+	#get the data
 	query = "SELECT * FROM predictions WHERE candidate LIKE ? AND race = ? AND date = ?"
 	cursor.execute(query, ["%"+name+"%", race, nDate])
 	predictionResults = cursor.fetchall()
 	
+	#pint it
 	i=-1
 	for i,point in enumerate(predictionResults):
 		print 'The closing value for',point[3],'on',date,'was',point[1]
@@ -26,43 +36,54 @@ def getData(name, date, race, dbloc):
 		
 	
 	connection.close()
-	
-def format_date(x, pos=None):
-    thisind = np.clip(int(x+0.5), 0, N-1)
-    return r.date[thisind].strftime('%Y-%m-%d')
-	
+		
 def plotData(name, date, race, dbloc):
+	'''
+	method to plot a candidate's prediction data and highlighte a particlar date
+	name: name of the candidate
+	date: date of interest
+	race: political race
+	dbloc: location of the database
+	'''
+	
+	#connect to the db
 	connection = sqlite3.connect(dbloc)
 	cursor = connection.cursor()
 	
+	#convert the input date to the db date format
 	a=time.strptime(date, '%Y-%m-%d')
 	searchDate = dt.datetime(a.tm_year, a.tm_mon, a.tm_mday)
 		
+	#get the results
 	query = "SELECT * FROM predictions WHERE candidate LIKE ? AND race = ?"
 	cursor.execute(query, ["%"+name+"%", race])
 	predictionResults = cursor.fetchall()
 	
+	#arrays and tuple to store the results
 	dates = []
 	prices = []
 	targetPoint = (0,0)
 	
+	#store each point, converting dates to the appropriate format
 	for point in predictionResults:
 		t = time.strptime(point[0], '%b %d, %Y')
 		d = dt.datetime(t.tm_year, t.tm_mon, t.tm_mday)
 		dates.append(d)
 		prices.append(point[1])
 		
+		#make a note of the point of interest
 		if d==searchDate: targetPoint = (d, point[1])
 		
 	dates = np.array(dates)
 	prices = np.array(prices)
 	
-	
+	#plot the data
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
 	ax.plot(dates, prices)
 	fig.autofmt_xdate()
 	
+	#annotate the target point, if it exists
 	if targetPoint != (0,0):
 		ax.plot(targetPoint[0], targetPoint[1], 'ro')
 		ax.annotate(date,
